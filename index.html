@@ -1,46 +1,480 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wabu AV – Die App des Schwäbischen Albvereins</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
+    :root {
+      --green:      #2d6a4f;
+      --green-dark: #1b4332;
+      --green-mid:  #40916c;
+      --green-light:#95d5b2;
+      --amber:      #e76f51;
+      --cream:      #fefae0;
+      --text:       #1a1a2e;
+      --muted:      #6c757d;
+      --card-bg:    #ffffff;
+      --radius:     14px;
+    }
 
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+    html { scroll-behavior: smooth; }
 
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/AV_App-web/">
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      line-height: 1.6;
+    }
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 60%, var(--green-mid) 100%);
+      color: #fff;
+      padding: 80px 24px 100px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="wabu_av">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+    .app-icon {
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.15);
+      border: 2px solid rgba(255,255,255,0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
 
-  <title>wabu_av</title>
-  <link rel="manifest" href="manifest.json">
+    .app-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+
+    .app-icon-fallback {
+      font-size: 48px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .hero .tagline {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      opacity: 0.85;
+      margin-bottom: 12px;
+      font-weight: 400;
+    }
+
+    .version-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 40px;
+      backdrop-filter: blur(6px);
+    }
+
+    /* ── DOWNLOAD BUTTONS ── */
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 26px;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      border: none;
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary {
+      background: #fff;
+      color: var(--green-dark);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+
+    .btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+    .btn-web {
+      background: var(--amber);
+      color: #fff;
+    }
+
+    .btn svg { flex-shrink: 0; }
+
+    .btn.loading { opacity: 0.5; pointer-events: none; }
+
+    /* ── WAVE ── */
+    .wave {
+      margin-top: -2px;
+      line-height: 0;
+    }
+    .wave svg { display: block; }
+
+    /* ── SECTION ── */
+    section { padding: 64px 24px; }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    .section-label {
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--green-mid);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 800;
+      color: var(--green-dark);
+      margin-bottom: 48px;
+    }
+
+    /* ── FEATURES ── */
+    .features {
+      background: var(--cream);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.1); }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 14px;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── DOWNLOAD SECTION ── */
+    .downloads {
+      background: var(--green-dark);
+      color: #fff;
+    }
+
+    .downloads .section-label { color: var(--green-light); }
+    .downloads .section-title { color: #fff; }
+
+    .download-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .download-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    .download-card .platform-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    .download-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .download-card p {
+      font-size: 0.8rem;
+      opacity: 0.65;
+      margin-bottom: 16px;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      background: var(--green-mid);
+      color: #fff;
+      transition: background 0.2s, transform 0.15s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-download:hover { background: var(--green-light); color: var(--green-dark); transform: translateY(-2px); }
+    .btn-download.disabled { opacity: 0.4; pointer-events: none; }
+
+    .online-cta {
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .online-cta p { opacity: 0.7; margin-bottom: 16px; font-size: 0.95rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #111;
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 0.82rem;
+    }
+
+    footer a { color: var(--green-light); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── LOADING SPINNER ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+  </style>
 </head>
 <body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="app-icon" id="appIconWrap">
+      <img src="app/assets/assets/icons/app_icon.png"
+           onerror="this.parentElement.innerHTML='<span class=\'app-icon-fallback\'>🏔️</span>'"
+           alt="Wabu AV Icon" />
+    </div>
+    <h1>Wabu AV</h1>
+    <p class="tagline">Die offizielle App des Schwäbischen Albvereins</p>
+    <span class="version-badge" id="versionBadge">Lädt…</span>
+    <div class="cta-group">
+      <a href="#downloads" class="btn btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        App herunterladen
+      </a>
+      <a href="app/" class="btn btn-outline">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Online öffnen
+      </a>
+    </div>
+  </div>
+
+  <div class="wave">
+    <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" height="60" width="100%">
+      <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" fill="#fefae0"/>
+    </svg>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="container">
+      <p class="section-label">Was die App kann</p>
+      <h2 class="section-title">Alles für euren Verein – an einem Ort</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3>Veranstaltungen</h3>
+          <p>Alle Vereinsevents im Überblick – mit Galerie, Aufgabenverteilung und Anmeldung direkt in der App.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🥾</div>
+          <h3>Wanderungen & Karte</h3>
+          <p>GPX-Routen auf interaktiver Karte, persönliche Wanderstatistiken und Höhenprofile für jede Tour.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📰</div>
+          <h3>News & Beiträge</h3>
+          <p>Vereinsnachrichten, Berichte und Ankündigungen immer aktuell – mit Kommentar- und Teilfunktion.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Mitglieder</h3>
+          <p>Mitgliederverzeichnis, Profile und direkte Kontaktmöglichkeit innerhalb des Vereins.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Benachrichtigungen</h3>
+          <p>Push-, In-App- und E-Mail-Benachrichtigungen für Events, Aufgaben und Neuigkeiten.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📁</div>
+          <h3>Dokumente & FAQ</h3>
+          <p>Vereinsdokumente zentral ablegen und teilen. Häufige Fragen übersichtlich im FAQ-Bereich.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOADS -->
+  <section class="downloads" id="downloads">
+    <div class="container">
+      <p class="section-label">Jetzt starten</p>
+      <h2 class="section-title">App herunterladen</h2>
+      <div class="download-cards">
+        <div class="download-card">
+          <div class="platform-icon">🤖</div>
+          <h3>Android</h3>
+          <p>APK direkt installieren</p>
+          <a href="#" class="btn-download disabled" id="apkBtn">
+            <span class="spinner" id="apkSpinner"></span>
+            <span id="apkLabel">Lädt…</span>
+          </a>
+        </div>
+        <div class="download-card">
+          <div class="platform-icon">🪟</div>
+          <h3>Windows</h3>
+          <p>Desktop-App</p>
+          <a href="#" class="btn-download disabled" id="winBtn">
+            <span class="spinner" id="winSpinner"></span>
+            <span id="winLabel">Lädt…</span>
+          </a>
+        </div>
+      </div>
+      <div class="online-cta">
+        <p>Kein Download nötig – direkt im Browser starten</p>
+        <a href="app/" class="btn btn-web">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          App online öffnen
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      Wabu AV &nbsp;·&nbsp;
+      <a href="https://www.schwaebischer-albverein.de" target="_blank" rel="noopener">Schwäbischer Albverein</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/lunde2020/AV_App-web/releases" target="_blank" rel="noopener">Alle Releases</a>
+    </p>
+  </footer>
+
+  <script>
+    const OWNER = 'lunde2020';
+    const REPO  = 'AV_App-web';
+
+    async function loadRelease() {
+      try {
+        const res  = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`);
+        if (!res.ok) throw new Error('no release');
+        const data = await res.json();
+
+        // Version Badge
+        document.getElementById('versionBadge').textContent =
+          `${data.tag_name}  ·  ${new Date(data.published_at).toLocaleDateString('de-DE')}`;
+
+        const assets = data.assets || [];
+
+        // APK
+        const apk = assets.find(a => a.name.endsWith('.apk'));
+        const apkBtn = document.getElementById('apkBtn');
+        document.getElementById('apkSpinner').remove();
+        if (apk) {
+          apkBtn.href = apk.browser_download_url;
+          apkBtn.classList.remove('disabled');
+          document.getElementById('apkLabel').textContent = 'APK herunterladen';
+        } else {
+          document.getElementById('apkLabel').textContent = 'Noch nicht verfügbar';
+        }
+
+        // Windows
+        const win = assets.find(a => a.name.includes('windows') && a.name.endsWith('.tar.gz'));
+        const winBtn = document.getElementById('winBtn');
+        document.getElementById('winSpinner').remove();
+        if (win) {
+          winBtn.href = win.browser_download_url;
+          winBtn.classList.remove('disabled');
+          document.getElementById('winLabel').textContent = 'Windows herunterladen';
+        } else {
+          document.getElementById('winLabel').textContent = 'Noch nicht verfügbar';
+        }
+
+      } catch (e) {
+        document.getElementById('versionBadge').textContent = 'Schwäbischer Albverein';
+        document.getElementById('apkSpinner').remove();
+        document.getElementById('winSpinner').remove();
+        document.getElementById('apkLabel').textContent = 'Zu den Releases';
+        document.getElementById('winLabel').textContent = 'Zu den Releases';
+        const releaseUrl = `https://github.com/${OWNER}/${REPO}/releases`;
+        document.getElementById('apkBtn').href = releaseUrl;
+        document.getElementById('winBtn').href = releaseUrl;
+        document.getElementById('apkBtn').classList.remove('disabled');
+        document.getElementById('winBtn').classList.remove('disabled');
+      }
+    }
+
+    loadRelease();
+  </script>
 </body>
 </html>
