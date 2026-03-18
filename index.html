@@ -399,6 +399,15 @@
             <span id="winLabel">Lädt…</span>
           </a>
         </div>
+        <div class="download-card">
+          <div class="platform-icon">🍎</div>
+          <h3>macOS</h3>
+          <p>Desktop-App als DMG</p>
+          <a href="#" class="btn-download disabled" id="macBtn">
+            <span class="spinner" id="macSpinner"></span>
+            <span id="macLabel">Lädt…</span>
+          </a>
+        </div>
       </div>
       <div class="online-cta">
         <p>Kein Download nötig – direkt im Browser starten</p>
@@ -460,17 +469,28 @@
           document.getElementById('winLabel').textContent = 'Noch nicht verfügbar';
         }
 
+        // macOS
+        const mac = assets.find(a => a.name.includes('macos') && a.name.endsWith('.dmg'));
+        const macBtn = document.getElementById('macBtn');
+        document.getElementById('macSpinner').remove();
+        if (mac) {
+          macBtn.href = mac.browser_download_url;
+          macBtn.classList.remove('disabled');
+          document.getElementById('macLabel').textContent = 'macOS herunterladen';
+        } else {
+          document.getElementById('macLabel').textContent = 'Noch nicht verfügbar';
+        }
+
       } catch (e) {
-        document.getElementById('versionBadge').textContent = 'Schwäbischer Albverein';
-        document.getElementById('apkSpinner').remove();
-        document.getElementById('winSpinner').remove();
-        document.getElementById('apkLabel').textContent = 'Zu den Releases';
-        document.getElementById('winLabel').textContent = 'Zu den Releases';
         const releaseUrl = `https://github.com/${OWNER}/${REPO}/releases`;
-        document.getElementById('apkBtn').href = releaseUrl;
-        document.getElementById('winBtn').href = releaseUrl;
-        document.getElementById('apkBtn').classList.remove('disabled');
-        document.getElementById('winBtn').classList.remove('disabled');
+        document.getElementById('versionBadge').textContent = 'Schwäbischer Albverein';
+        ['apk','win','mac'].forEach(id => {
+          document.getElementById(`${id}Spinner`).remove();
+          document.getElementById(`${id}Label`).textContent = 'Zu den Releases';
+          const btn = document.getElementById(`${id}Btn`);
+          btn.href = releaseUrl;
+          btn.classList.remove('disabled');
+        });
       }
     }
 
