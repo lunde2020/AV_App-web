@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Willkommen – Wabu AV</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #2d6a4f;
+      --green-dark: #1b4332;
+      --green-light: #95d5b2;
+      --radius: 12px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f4f1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .logo {
+      display: block;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 24px;
+      object-fit: contain;
+    }
+    .check {
+      width: 56px;
+      height: 56px;
+      background: #dcfce7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.6rem;
+    }
+    h1 {
+      font-size: 1.5rem;
+      color: var(--green-dark);
+      margin-bottom: 10px;
+    }
+    .name {
+      color: var(--green);
+      font-weight: 700;
+    }
+    .subtitle {
+      color: #6b7280;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+    .app-hint {
+      background: #f0fdf4;
+      border: 1.5px solid var(--green-light);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+      font-size: 0.9rem;
+      color: #374151;
+      line-height: 1.6;
+    }
+    .app-hint strong { color: var(--green-dark); }
+    .btn-logout {
+      background: none;
+      border: 1.5px solid #d1d5db;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 0.9rem;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-logout:hover {
+      border-color: #9ca3af;
+      color: #374151;
+    }
+    .hint {
+      margin-top: 24px;
+      font-size: 0.82rem;
+      color: #9ca3af;
+    }
+    #loading { color: #6b7280; font-size: 0.95rem; }
+    #content { display: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <img src="../app/assets/assets/images/logo.png"
+         onerror="this.style.display='none'"
+         class="logo" alt="Wabu AV Logo" />
+
+    <p id="loading">Lade...</p>
+
+    <div id="content">
+      <div class="check">✓</div>
+      <h1>Willkommen,<br/><span class="name" id="userName">...</span>!</h1>
+      <p class="subtitle" id="subtitleText">
+        Dein Account wurde erfolgreich bestätigt.
+      </p>
+
+      <div class="app-hint">
+        <strong>Nächster Schritt:</strong><br/>
+        Öffne die <strong>Wabu AV App</strong> auf deinem Smartphone
+        und melde dich mit deiner E-Mail-Adresse an.
+      </div>
+
+      <button class="btn-logout" id="logoutBtn">Abmelden</button>
+    </div>
+
+    <p class="hint">Wabu AV &mdash; Albverein App</p>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    const SUPABASE_URL  = 'https://pdblyaueljlufccbkqag.supabase.co'
+    const SUPABASE_ANON = 'sb_publishable_Qyq6z-o7XWdA2s_mJLXR8g_yIx0Dkpr'
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON)
+
+    const loadingEl  = document.getElementById('loading')
+    const contentEl  = document.getElementById('content')
+    const userNameEl = document.getElementById('userName')
+    const subtitleEl = document.getElementById('subtitleText')
+    const logoutBtn  = document.getElementById('logoutBtn')
+
+    async function init() {
+      // Supabase verarbeitet den Hash automatisch beim Import
+      // Wir warten kurz auf onAuthStateChange
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+          const user = session.user
+          const displayName =
+            user.user_metadata?.display_name ||
+            user.user_metadata?.full_name ||
+            user.email?.split('@')[0] ||
+            'Mitglied'
+
+          userNameEl.textContent = displayName
+
+          // Typ des Events in Subtitle anpassen
+          if (event === 'SIGNED_IN') {
+            subtitleEl.textContent = 'Du hast dich erfolgreich angemeldet.'
+          } else if (event === 'USER_UPDATED') {
+            subtitleEl.textContent = 'Dein Passwort wurde erfolgreich geändert.'
+          }
+
+          loadingEl.style.display = 'none'
+          contentEl.style.display = 'block'
+        } else {
+          // Keine Session — direkt auf Session prüfen
+          const { data: { session: s } } = await supabase.auth.getSession()
+          if (s?.user) {
+            const displayName =
+              s.user.user_metadata?.display_name ||
+              s.user.user_metadata?.full_name ||
+              s.user.email?.split('@')[0] ||
+              'Mitglied'
+            userNameEl.textContent = displayName
+            loadingEl.style.display = 'none'
+            contentEl.style.display = 'block'
+          } else {
+            loadingEl.textContent = 'Keine aktive Sitzung gefunden.'
+          }
+        }
+      })
+
+      // Direkt Session prüfen (falls bereits eingeloggt ohne neues Event)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        const displayName =
+          session.user.user_metadata?.display_name ||
+          session.user.user_metadata?.full_name ||
+          session.user.email?.split('@')[0] ||
+          'Mitglied'
+        userNameEl.textContent = displayName
+        loadingEl.style.display = 'none'
+        contentEl.style.display = 'block'
+      }
+    }
+
+    logoutBtn.addEventListener('click', async () => {
+      await supabase.auth.signOut()
+      logoutBtn.textContent = 'Abgemeldet'
+      logoutBtn.disabled = true
+    })
+
+    init()
+  </script>
+</body>
+</html>
